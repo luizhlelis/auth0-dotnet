@@ -5,7 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Auth0Dotnet.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [ApiVersion("1")]
+    [Route("v{version:apiVersion}/[controller]")]
     public class AuthenticationController : ControllerBase
     {
         private readonly ILogger<AuthenticationController> _logger;
@@ -21,6 +22,10 @@ namespace Auth0Dotnet.Controllers
 
         [HttpGet]
         [Route("sign-in")]
+        /// <summary>
+        /// Sign in to the application (starts the authorization code flow).
+        /// </summary>
+        /// <param name="id"></param>
         public static void SignIn()
         {
             return;
