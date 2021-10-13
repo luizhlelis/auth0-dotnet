@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Swashbuckle.AspNetCore" />
-    <None Remove="Microsoft.AspNetCore.Mvc.Versioning" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.11" />
   </ItemGroup>
 </Project>
