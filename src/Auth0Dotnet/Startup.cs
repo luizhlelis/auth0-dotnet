@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
 
 namespace Auth0Dotnet
 {
@@ -34,17 +37,21 @@ namespace Auth0Dotnet
                 options.ReportApiVersions = true;
 
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.DefaultApiVersion = new ApiVersion(1);
+                options.DefaultApiVersion = new ApiVersion(1,0);
             });
 
-            services.AddSwaggerGen(c =>
+            services.AddVersionedApiExplorer(options =>
             {
-                c.SwaggerDoc("v1", openApiInfo);
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
 
-                // Set the comments path for the Swagger JSON and UI
-                //var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                //var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                //c.IncludeXmlComments(xmlPath);
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+            services.AddSwaggerGen(options =>
+            {
+                //options.SwaggerDoc("v1", openApiInfo);
+                options.OperationFilter<SwaggerDefaultValues>();
             });
 
             // Cookie configuration for HTTP to support cookies with SameSite=None
@@ -90,17 +97,17 @@ namespace Auth0Dotnet
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IApiVersionDescriptionProvider provider)
         {
-            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+
             app.UseSwagger();
 
             app.UseRouting();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
 
             app.UseHttpsRedirection();
 
@@ -108,10 +115,16 @@ namespace Auth0Dotnet
 
             app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Auth0Dotnet v1");
-                    c.RoutePrefix = string.Empty;
+                    foreach(var description in provider.ApiVersionDescriptions)
+                        c.SwaggerEndpoint(
+                            $"/swagger/{description.GroupName}/swagger.json",
+                            description.GroupName);
                 }
             );
+
+            app.UseCors(builder => builder.AllowAnyMethod()
+                                          .AllowAnyOrigin()
+                                          .AllowAnyHeader());
 
             app.UseEndpoints(endpoints =>
             {
