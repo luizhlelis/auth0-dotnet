@@ -14,6 +14,9 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using System.Threading.Tasks;
 
 namespace Auth0Dotnet
 {
@@ -76,7 +79,7 @@ namespace Auth0Dotnet
 
                 // Configure the Auth0 Client ID and Client Secret
                 options.ClientId = Configuration["AuthorizationServer:ClientId"];
-                        options.ClientSecret = Configuration["AuthorizationServer:ClientSecret"];
+                options.ClientSecret = Configuration["AuthorizationServer:ClientSecret"];
 
                 // Set response type to code
                 options.ResponseType = OpenIdConnectResponseType.Code;
@@ -90,6 +93,38 @@ namespace Auth0Dotnet
 
                 // Configure the Claims Issuer to be Auth0
                 options.ClaimsIssuer = "Auth0";
+
+                options.SaveTokens = true;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name"
+                };
+
+
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRedirectToIdentityProviderForSignOut = (context) =>
+                    {
+                        var logoutUri = $"{options.Authority}/v2/logout?client_id={options.ClientId}";
+
+                        var postLogoutUri = context.Properties.RedirectUri;
+                        if (!string.IsNullOrEmpty(postLogoutUri))
+                        {
+                            if (postLogoutUri.StartsWith("/"))
+                            {
+                                var request = context.Request;
+                                postLogoutUri = request.Scheme + "://" + request.Host + request.PathBase + postLogoutUri;
+                            }
+                            logoutUri += $"&returnTo={ Uri.EscapeDataString(postLogoutUri)}";
+                        }
+
+                        context.Response.Redirect(logoutUri);
+                        context.HandleResponse();
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             // Add framework services.
@@ -110,6 +145,8 @@ namespace Auth0Dotnet
             app.UseRouting();
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

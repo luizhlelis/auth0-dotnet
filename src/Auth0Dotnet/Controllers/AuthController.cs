@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auth0Dotnet.Controllers
 {
@@ -10,7 +12,7 @@ namespace Auth0Dotnet.Controllers
         [HttpGet("sign-in")]
         public IActionResult SignIn()
         {
-            return Ok("Boa! Conseguiu");
+            return HttpContext.ChallengeAsync("Auth0", new AuthenticationProperties() { RedirectUri = returnUrl });
         }
 
         //// GET api/auth/5
