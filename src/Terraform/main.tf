@@ -31,10 +31,10 @@ resource "auth0_client" "auth0_dotnet_client" {
   is_token_endpoint_ip_header_trusted = true
   token_endpoint_auth_method = "client_secret_post"
   oidc_conformant = true
-  callbacks = [ "https://localhost:5001/response-oidc" ]
+  callbacks = [ "https://localhost:5001/v1/auth/response-oidc" ]
   allowed_origins = [ "https://localhost" ]
   grant_types = [ "authorization_code", "refresh_token" ]
-  allowed_logout_urls = [ "https://localhost" ]
+  allowed_logout_urls = [ "https://localhost:5001/v1/auth/sign-out" ]
   web_origins = [ "https://localhost" ]
   jwt_configuration {
     lifetime_in_seconds = 300
