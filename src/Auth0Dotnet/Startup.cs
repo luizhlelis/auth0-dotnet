@@ -32,9 +32,6 @@ namespace Auth0Dotnet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var openApiInfo = new OpenApiInfo();
-            Configuration.Bind("OpenApiInfo", openApiInfo);
-
             services.AddControllers();
             services.AddApiVersioning(options => {
                 options.ReportApiVersions = true;
@@ -49,6 +46,9 @@ namespace Auth0Dotnet
                 options.SubstituteApiVersionInUrl = true;
             });
 
+            var openApiInfo = new OpenApiInfo();
+            Configuration.Bind("OpenApiInfo", openApiInfo);
+            services.AddSingleton(openApiInfo);
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
             services.AddSwaggerGen(options =>
@@ -89,7 +89,7 @@ namespace Auth0Dotnet
                 options.Scope.Add(Configuration["AuthorizationServer:Scope"]);
 
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
-                options.CallbackPath = new PathString("/response-oidc");
+                options.CallbackPath = new PathString("/v1/auth/response-oidc");
 
                 // Configure the Claims Issuer to be Auth0
                 options.ClaimsIssuer = "Auth0";
@@ -122,6 +122,12 @@ namespace Auth0Dotnet
                         context.Response.Redirect(logoutUri);
                         context.HandleResponse();
 
+                        return Task.CompletedTask;
+                    },
+
+                    OnAuthorizationCodeReceived = (context) =>
+                    {
+                        Console.WriteLine(context.JwtSecurityToken);
                         return Task.CompletedTask;
                     }
                 };
