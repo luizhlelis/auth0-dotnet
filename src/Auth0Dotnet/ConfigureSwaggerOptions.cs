@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -15,12 +14,17 @@ namespace Auth0Dotnet
     public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         readonly IApiVersionDescriptionProvider provider;
+        readonly OpenApiInfo openApiInfo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigureSwaggerOptions"/> class.
         /// </summary>
         /// <param name="provider">The <see cref="IApiVersionDescriptionProvider">provider</see> used to generate Swagger documents.</param>
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
+        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, OpenApiInfo openApiInfo)
+        {
+            this.provider = provider;
+            this.openApiInfo = openApiInfo;
+        }
 
         /// <inheritdoc />
         public void Configure(SwaggerGenOptions options)
@@ -29,27 +33,20 @@ namespace Auth0Dotnet
             // note: you might choose to skip or document deprecated API versions differently
             foreach (var description in provider.ApiVersionDescriptions)
             {
-                options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
+                options.SwaggerDoc(description.GroupName, UpdateInfoForApiVersion(description));
             }
         }
 
-        static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
+        public OpenApiInfo UpdateInfoForApiVersion(ApiVersionDescription description)
         {
-            var info = new OpenApiInfo()
-            {
-                Title = "Sample API",
-                Version = description.ApiVersion.ToString(),
-                Description = "A sample application with Swagger, Swashbuckle, and API versioning.",
-                Contact = new OpenApiContact() { Name = "Bill Mei", Email = "bill.mei@somewhere.com" },
-                License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT") }
-            };
+            openApiInfo.Version = description.ApiVersion.ToString();
 
             if (description.IsDeprecated)
             {
-                info.Description += " This API version has been deprecated.";
+                openApiInfo.Description += " This API version has been deprecated.";
             }
 
-            return info;
+            return openApiInfo;
         }
     }
 }
