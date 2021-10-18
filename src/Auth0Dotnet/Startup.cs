@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -60,12 +58,6 @@ namespace Auth0Dotnet
             // Cookie configuration for HTTP to support cookies with SameSite=None
             services.ConfigureSameSiteNoneCookies();
 
-            // Cookie configuration for HTTPS
-            // services.Configure<CookiePolicyOptions>(options =>
-            // {
-            //    options.MinimumSameSitePolicy = SameSiteMode.None
-            // });
-
             // Add authentication services
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -86,7 +78,9 @@ namespace Auth0Dotnet
 
                 // Configure the scope
                 options.Scope.Clear();
-                options.Scope.Add(Configuration["AuthorizationServer:Scope"]);
+                var scopeArray = Configuration["AuthorizationServer:Scopes"].Split(',');
+                foreach (var scope in scopeArray)
+                    options.Scope.Add(scope);
 
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
                 options.CallbackPath = new PathString("/v1/auth/response-oidc");
@@ -171,7 +165,9 @@ namespace Auth0Dotnet
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
