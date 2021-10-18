@@ -34,7 +34,7 @@ resource "auth0_client" "auth0_dotnet_client" {
   callbacks = [ "https://localhost:5001/v1/auth/response-oidc" ]
   allowed_origins = [ "https://localhost" ]
   grant_types = [ "authorization_code", "refresh_token" ]
-  allowed_logout_urls = [ "https://localhost:5001/v1/auth/sign-out" ]
+  allowed_logout_urls = [ "https://localhost:5001/" ]
   web_origins = [ "https://localhost" ]
   jwt_configuration {
     lifetime_in_seconds = 300
