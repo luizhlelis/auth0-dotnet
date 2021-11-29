@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Auth0Dotnet
 {
@@ -92,7 +93,8 @@ namespace Auth0Dotnet
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    NameClaimType = "name"
+                    NameClaimType = "name",
+                    ValidIssuers = Configuration["AuthorizationServer:ValidIssuers"].Split(',')
                 };
 
 
