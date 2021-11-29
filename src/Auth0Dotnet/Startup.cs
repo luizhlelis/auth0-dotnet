@@ -83,7 +83,7 @@ namespace Auth0Dotnet
                     options.Scope.Add(scope);
 
                 // Also ensure that you have added the URL as an Allowed Callback URL in your Auth0 dashboard
-                options.CallbackPath = new PathString("/v1/auth/response-oidc");
+                options.CallbackPath = new PathString(Configuration["AuthorizationServer:CallbackPath"]);
 
                 // Configure the Claims Issuer to be Auth0
                 options.ClaimsIssuer = "Auth0";
