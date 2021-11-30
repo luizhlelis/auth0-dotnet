@@ -11,16 +11,25 @@ provider "auth0" {}
 
 # auth0_branding is not updating the logo
 resource "auth0_branding" "auth_server_branding" {
-    logo_url = "https://raw.githubusercontent.com/luizhlelis/luizhlelis/master/lelis-octocat.png"
-    favicon_url = "https://raw.githubusercontent.com/luizhlelis/luizhlelis/master/lelis-octocat.png"
-    colors {
-        primary = "#BB86FC"
-        page_background = "#121212"
-    }
-    font {
-      url = "https://fonts.googleapis.com/css2?family=Nunito&display=swap"
-    }
+  logo_url = "https://raw.githubusercontent.com/luizhlelis/luizhlelis/master/lelis-octocat.png"
+  favicon_url = "https://raw.githubusercontent.com/luizhlelis/luizhlelis/master/lelis-octocat.png"
+  colors {
+    primary = "#BB86FC"
+    page_background = "#121212"
+  }
+  font {
+    url = "https://fonts.googleapis.com/css2?family=Nunito&display=swap"
+  }
+  universal_login {
+    body = file("${path.module}/assets/universal-login.html")
+  }
 }
+
+# resource "auth0_custom_domain" "auth_server_custom_domain" {
+#   domain = "auth.luizlelis.com"
+#   type = "auth0_managed_certs"
+#   verification_method = "txt"
+# }
 
 resource "auth0_client" "auth0_dotnet_client" {
   name = "auth0 dotnet client"
