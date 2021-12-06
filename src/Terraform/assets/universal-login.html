@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Sign In with Auth0</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 <body>
   {%- auth0:widget -%}
@@ -34,10 +34,11 @@
       language = config.dict;
     }
     var loginHint = config.extraParams.login_hint;
-    var colors = config.colors || {};
+    
+    console.log(config.auth0Domain);
+    console.log(config);
 
-    // Available Lock configuration options: https://auth0.com/docs/libraries/lock/v11/configuration
-    var lock = new Auth0Lock(config.clientID, config.auth0Domain, {
+    var lock = new Auth0LockPasswordless(config.clientID, config.auth0Domain, {
       auth: {
         redirectUrl: config.callbackURL,
         responseType: (config.internalOptions || {}).response_type ||
@@ -57,24 +58,10 @@
       languageDictionary: languageDictionary,
       theme: {
         logo:            'https://raw.githubusercontent.com/luizhlelis/luizhlelis/master/lelis-octocat.png',
-        primaryColor:    colors.primary ? colors.primary : 'green'
+        primaryColor:    'green'
       },
-      prefill: loginHint ? { email: loginHint, username: loginHint } : null,
-      closable: false,
-      allowSignUp: !config.extraParams.prevent_sign_up,
-      defaultADUsernameFromEmailPrefix: false
+      closable: false
     });
-
-    if(colors.page_background) {
-      var css = '.auth0-lock.auth0-lock .auth0-lock-overlay { background: ' +
-                  colors.page_background +
-                ' }';
-      var style = document.createElement('style');
-
-      style.appendChild(document.createTextNode(css));
-
-      document.body.appendChild(style);
-    }
 
     lock.show();
   </script>
