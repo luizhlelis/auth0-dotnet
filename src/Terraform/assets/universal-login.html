@@ -34,21 +34,18 @@
       language = config.dict;
     }
     var loginHint = config.extraParams.login_hint;
-    
-    console.log(config.auth0Domain);
-    console.log(config);
 
-    var lock = new Auth0LockPasswordless(config.clientID, config.auth0Domain, {
+    var lock = new Auth0LockPasswordless(config.clientID, "auth.luizlelis.com", {
       auth: {
         redirectUrl: config.callbackURL,
         responseType: (config.internalOptions || {}).response_type ||
           (config.callbackOnLocationHash ? 'token' : 'code'),
         params: config.internalOptions
       },
-      configurationBaseUrl: config.clientConfigurationBaseUrl,
+      configurationBaseUrl: "https://auth.luizlelis.com/",
       overrides: {
         __tenant: config.auth0Tenant,
-        __token_issuer: config.authorizationServer.issuer
+        __token_issuer: "https://auth.luizlelis.com/"
       },
       assetsUrl:  config.assetsUrl,
       allowedConnections: connection ? [connection] : null,
